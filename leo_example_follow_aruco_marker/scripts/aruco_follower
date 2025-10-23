@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+
+import rclpy
+
+from leo_follow_aruco.aruco_follower_node import ArucoMarkerFollower
+
+rclpy.init()
+
+node = ArucoMarkerFollower()
+
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt as e:
+    node.cleanup()
+    node.destroy_node()
+    rclpy.try_shutdown()
