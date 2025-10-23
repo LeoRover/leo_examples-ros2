@@ -38,7 +38,7 @@ class ObjectDetectorNode(Node):
         try:
             self._interpreter: Interpreter = Interpreter(model_path=model_path)
         except ValueError as e:
-            self.get_logger().error("Could not load tflite model: %s" % (model_path))
+            self.get_logger().error(f"Could not load tflite model: '{model_path}'.")
             raise
 
         input_details = self._interpreter.get_input_details()
@@ -55,7 +55,7 @@ class ObjectDetectorNode(Node):
             "~confidence",
             60,
             ParameterDescriptor(
-                description="Detection confidence threshold percentage (int, range 0-100)",
+                description="Detection confidence threshold percentage (int, range 0-100).",
                 integer_range=[IntegerRange(from_value=0, to_value=100, step=1)],
             ),
         )
@@ -70,7 +70,7 @@ class ObjectDetectorNode(Node):
             Image, video_topic, self.video_callback, QoSProfile(depth=1)
         )
 
-        self.get_logger().info("Starting node")
+        self.get_logger().info("Starting node.")
 
     def param_callback(self, params: Sequence[Parameter]) -> SetParametersResult:
         """Callback triggered on parameter change.
@@ -221,10 +221,10 @@ class ObjectDetectorNode(Node):
         labels: Sequence[int],
         confidence: Sequence[float],
     ) -> Sequence[BoxInfo]:
-        """Generate formatted bounding box data for detected objects.
+        """Generates formatted bounding box data for detected objects.
 
         Args:
-            boxes (Sequence[tuple[int, int, int, int]]): Bounding box coordinates in normalized form (ymin, xmin, ymax, xmax)
+            boxes (Sequence[tuple[int, int, int, int]]): Bounding box coordinates in normalized form (ymin, xmin, ymax, xmax).
             labels (Sequence[int]): Class label indices corresponding to detected objects.
             confidence (Sequence[float]): Confidence scores for each detection, ranging from 0.0 to 1.0.
 
@@ -258,7 +258,7 @@ class ObjectDetectorNode(Node):
         """Draws bounding boxes with text labels onto target image.
 
         Args:
-            img (NDArray): Target image to draw the detections on
+            img (NDArray): Target image to draw the detections on.
             final_boxes (Sequence[BoxInfo]): Boxes with detections info used for drawing.
 
         Returns:
