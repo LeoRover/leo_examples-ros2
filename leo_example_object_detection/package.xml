@@ -19,19 +19,14 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
-  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-opencv</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
-  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>rcl_interfaces</exec_depend>
   <exec_depend>rclpy</exec_depend>
-
-  <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_cmake_black</test_depend>
-  <test_depend>ament_cmake_copyright</test_depend>
-  <test_depend>ament_cmake_lint_cmake</test_depend>
-  <test_depend>ament_cmake_mypy</test_depend>
-  <test_depend>ament_cmake_xmllint</test_depend>
-
+  <exec_depend>sensor_msgs</exec_depend>
+  
   <export>
    <build_type>ament_cmake</build_type>
   </export>
