@@ -49,7 +49,7 @@ def translate(
 
 
 def pose_delta(pose1: Pose, pose2: Pose) -> tuple[float, float, float]:
-    """Calculate movement in linear x,y axes and yaw rotation between two odometry poses.
+    """Calculates movement in linear x,y axes and yaw rotation between two odometry poses.
 
     Args:
         pose1 (Pose): Old pose.
@@ -124,7 +124,7 @@ class ArucoMarkerFollower(Node):
         self._run_timer: Timer = self.create_timer(0.1, self.run)
 
     def param_timer_callback(self) -> None:
-        """Callback for the parameters timer - updates the value of parameters."""
+        """Callback for the parameters timer - updates the values of parameters."""
         if self._param_listener.is_old(self._params):
             self._param_listener.refresh_dynamic_parameters()
             self._params = self._param_listener.get_params()
@@ -133,7 +133,7 @@ class ArucoMarkerFollower(Node):
         """Function controlling the rover. Sends velocity command based on
         marker position and odometry calculations.
         """
-        if not self._params.follow:
+        if not self._params.follow_enabled:
             return
 
         self.update_vel_cmd()
@@ -192,7 +192,7 @@ class ArucoMarkerFollower(Node):
         self._twist_cmd.linear.x = lin_cmd
 
     def update_marker_angle_and_distance(self) -> None:
-        """Update current distance and angle from the rover to the marker."""
+        """Updates current distance and angle from the rover to the marker."""
         if self._last_marker_position:
             current_pos_x, current_pos_y, current_yaw = pose_delta(
                 self._odom_marker_pose, self._odom_current_pose
@@ -206,7 +206,7 @@ class ArucoMarkerFollower(Node):
 
     def marker_callback(self, msg: ArucoDetection) -> None:
         """Callback for marker detection subscriber. Searches for the right marker
-        and updates the inner odom variables.
+        and updates the calculation needed variables.
 
         Args:
             msg (ArucoDetection): Message received on the topic.
@@ -217,7 +217,7 @@ class ArucoMarkerFollower(Node):
                 continue
             if Time.from_msg(msg.header.stamp) < self._last_marker_ts:
                 self.get_logger().warning(
-                    "Got marker position with an older timestamp",
+                    "Got marker position with an older timestamp.",
                     throttle_duration_sec=3.0,
                 )
                 continue
@@ -242,7 +242,7 @@ class ArucoMarkerFollower(Node):
             end_ts: Time = Time.from_msg(msg.header.stamp)
             if end_ts < start_ts:
                 self.get_logger().warning(
-                    "Reveived odometry has timestamp older than last marker position"
+                    "Reveived odometry has timestamp older than last marker position."
                 )
 
             self._odom_current_pose = msg.pose
@@ -252,7 +252,8 @@ class ArucoMarkerFollower(Node):
         self.last_odom_ts = Time.from_msg(msg.header.stamp)
 
     def cleanup(self) -> None:
-        """Clean ROS entities."""
+        """Cleans ROS entities."""
+        self._params.follow_enabled = False
         self.destroy_timer(self._param_timer)
         self.destroy_timer(self._run_timer)
         self.destroy_subscription(self._marker_pose_sub)
