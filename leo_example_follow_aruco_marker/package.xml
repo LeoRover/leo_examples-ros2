@@ -23,8 +23,10 @@
 
   <exec_depend>aruco_opencv</exec_depend>
   <exec_depend>aruco_opencv_msgs</exec_depend>
-  <exec_depend>tf_transformations</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
   <exec_depend>rclpy</exec_depend>
+  <exec_depend>tf_transformations</exec_depend>
 
   <export>
    <build_type>ament_cmake</build_type>
