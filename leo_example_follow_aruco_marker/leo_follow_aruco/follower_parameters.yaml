@@ -2,7 +2,7 @@ follower_parameters:
   follow_id:
     type: int
     default_value: 0
-    description: "The ID of the marker to follow"
+    description: "The ID of the marker to follow."
     validation:
       gt_eq<>: [0]
   marker_timeout:
@@ -83,7 +83,7 @@ follower_parameters:
     description: "Minimal distance (in meters) to the marker, for the rover to start moving backward."
     validation:
       bounds<>: [0.1, 2.0]
-  follow:
+  follow_enabled:
     type: bool
     default_value: true
     description: "Whether to follow the marker or not."
