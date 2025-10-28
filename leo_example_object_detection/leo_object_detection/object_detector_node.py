@@ -53,7 +53,7 @@ class ObjectDetectorNode(Node):
 
         self.declare_parameter(
             "~confidence",
-            60,
+            65,
             ParameterDescriptor(
                 description="Detection confidence threshold percentage (int, range 0-100).",
                 integer_range=[IntegerRange(from_value=0, to_value=100, step=1)],
