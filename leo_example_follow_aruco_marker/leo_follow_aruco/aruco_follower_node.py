@@ -99,8 +99,7 @@ class ArucoMarkerFollower(Node):
 
         self._param_listener = follower_parameters.ParamListener(self)
         self._params = self._param_listener.get_params()
-
-        self._param_timer: Timer = self.create_timer(1.0, self.param_timer_callback)
+        self._param_listener.set_user_callback(self.reconfigure_callback)
 
         self._last_marker_ts: Time = self.get_clock().now() - Duration(
             seconds=self._params.marker_timeout + 1.0
@@ -123,11 +122,14 @@ class ArucoMarkerFollower(Node):
 
         self._run_timer: Timer = self.create_timer(0.1, self.run)
 
-    def param_timer_callback(self) -> None:
-        """Callback for the parameters timer - updates the values of parameters."""
-        if self._param_listener.is_old(self._params):
-            self._param_listener.refresh_dynamic_parameters()
-            self._params = self._param_listener.get_params()
+    def reconfigure_callback(self, parameters: follower_parameters.Params) -> None:
+        """Callback for the parameters change.
+        Updates the values of parameters.
+
+        Args:
+            parameters (follower_parameters.Params): The struct with current parameters.
+        """
+        self._params = parameters
 
     def run(self) -> None:
         """Function controlling the rover. Sends velocity command based on
@@ -254,7 +256,6 @@ class ArucoMarkerFollower(Node):
     def cleanup(self) -> None:
         """Cleans ROS entities."""
         self._params.follow_enabled = False
-        self.destroy_timer(self._param_timer)
         self.destroy_timer(self._run_timer)
         self.destroy_subscription(self._marker_pose_sub)
         self.destroy_subscription(self._merged_odom_sub)
