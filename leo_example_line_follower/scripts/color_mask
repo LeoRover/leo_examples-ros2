@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+
+import rclpy
+
+from leo_line_follower.color_mask_node import ColorMaskNode
+
+rclpy.init()
+
+node = ColorMaskNode()
+
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt as e:
+    node.cleanup()
+    node.destroy_node()
+    rclpy.try_shutdown()

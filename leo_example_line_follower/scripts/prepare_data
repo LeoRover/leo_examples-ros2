@@ -1,0 +1,169 @@
+#!/usr/bin/env python3
+import argparse
+import os
+from pathlib import Path
+import pickle
+import sys
+import shutil
+from typing import Sequence
+from zipfile import ZipFile
+
+
+class DataProcessor:
+    """Class processing provided recorded data into dataset."""
+
+    def __init__(self, train: str, valid: str, zip_file: str) -> None:
+        self._training_paths = train
+        self._validation_paths = valid
+        self._zip_file = zip_file
+
+        if not zip_file.endswith(".zip"):
+            self._zip_file += ".zip"
+
+        try:
+            Path("data").mkdir(parents=True)
+        except FileExistsError as e:
+            print(
+                "'data' directory exist in the working directory already. Can't process images."
+            )
+            return
+
+        self.process_data(self._training_paths + self._validation_paths)
+        self.make_zip_archive()
+
+    def make_zip_archive(self) -> None:
+        """Merges all prepared data into single zip file
+        and removes the artifacts.
+        """
+        zip_obj = None
+        try:
+            zip_obj = ZipFile(self._zip_file, "x")
+        except FileExistsError as e:
+            print(
+                "Given zip file already exist. Pick different name, or move the zip file."
+            )
+            shutil.rmtree("data")
+            os.remove("partition.pickle")
+            os.remove("labels.pickle")
+            return
+
+        print(f"Created '{self._zip_file}' file.")
+
+        zip_obj.write("partition.pickle")
+        print("Zipped 'partition.pickle' file.")
+        zip_obj.write("labels.pickle")
+        print("Zipped 'labels.pickle' file.")
+
+        images = os.listdir("data")
+
+        for img in images:
+            zip_obj.write(os.path.join("data", img))
+        print("Zipped 'data' directory.")
+        zip_obj.close()
+
+        print("Zip archive ready, removing temp files.")
+        shutil.rmtree("data")
+        os.remove("partition.pickle")
+        os.remove("labels.pickle")
+
+    def process_data(self, paths: Sequence[str]) -> None:
+        """Merges data from all provided directories into single
+        dataset. Creates 'data' directory with all recorded images,
+        and pickle files with data partition and labels.
+
+        Args:
+            paths (list[str]): List of paths with data to be merged.
+        """
+        labels = {"linear": dict(), "angular": dict()}
+        partition = {"validation": [], "train": []}
+
+        for path in paths:
+            print(f"Processing '{path}/labels.txt'.")
+            with open(os.path.join(path, "labels.txt"), "r") as file:
+                lines = file.readlines()
+
+                for line in lines:
+                    photo, label_tuple = self.get_label(line)
+                    labels["linear"][photo] = label_tuple[0]
+                    labels["angular"][photo] = label_tuple[1]
+
+                    if path in self._validation_paths:
+                        partition["validation"].append(photo)
+                    else:
+                        partition["train"].append(photo)
+
+                    shutil.copy(os.path.join(path, photo), os.path.join("data", photo))
+
+        with open("labels.pickle", "wb") as handle:
+            pickle.dump(labels, handle, pickle.DEFAULT_PROTOCOL)
+
+        with open("partition.pickle", "wb") as handle:
+            pickle.dump(partition, handle, protocol=pickle.DEFAULT_PROTOCOL)
+
+    def make_tuple_from_string(self, string: str) -> tuple[float, float]:
+        """Parses string with label into tuple with numerical values.
+
+        Args:
+            string (str): String with image label.
+
+        Returns:
+            tuple[float, float]: Parsed tuple with numerical values.
+        """
+        divide = string.split(",")
+        first = float(divide[0][1:])
+        second = float(divide[1][:-1])
+        return (first, second)
+
+    def get_label(self, line: str) -> tuple[str, str]:
+        """Parses line from labels file into key-value pair.
+
+        Args:
+            line (str): A line from labels file.
+
+        Returns:
+            tuple[str, str]: Key-value formated label.
+        """
+        divide = line.split(":")
+        key = divide[0]
+        value = self.make_tuple_from_string(divide[1].strip())
+        return key, value
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Prepare dataset for neural network training."
+    )
+    parser.add_argument(
+        "-t",
+        "--train_data",
+        nargs="+",
+        type=str,
+        required=True,
+        metavar="[paths]",
+        help="Paths to directiories with training data.",
+        dest="train",
+    )
+    parser.add_argument(
+        "-v",
+        "--valid_data",
+        nargs="+",
+        type=str,
+        required=True,
+        metavar="[paths]",
+        help="Paths to directiories with validation data.",
+        dest="valid",
+    )
+    parser.add_argument(
+        "-z",
+        "--zip_file",
+        nargs="?",
+        type=str,
+        metavar="path",
+        help="Name of the zip archive with dataset.",
+        dest="zip",
+        default="my_dataset.zip",
+    )
+
+    args = parser.parse_args(sys.argv[1:])
+
+    data_processor = DataProcessor(args.train, args.valid, args.zip)
