@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import copy
 from typing import TypeAlias, Sequence
 from pathlib import Path
@@ -137,14 +135,18 @@ class ObjectDetectorNode(Node):
         self._label_colors: dict = dict()
         self.declare_parameter(
             "~config_path",
-            str(Path(get_package_share_directory("leo_example_object_detection")) / "config" / "labels_config.yaml"),
+            str(
+                Path(get_package_share_directory("leo_example_object_detection"))
+                / "config"
+                / "labels_config.yaml"
+            ),
             ParameterDescriptor(
                 description="Path to the yaml file with label-color configuration."
             ),
         )
 
         config_path = self.get_parameter("~config_path").value
-        
+
         with open(config_path, "r", encoding="utf-8") as f:
             config_data = yaml.safe_load(f)
 
