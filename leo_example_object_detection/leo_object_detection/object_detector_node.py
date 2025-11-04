@@ -31,23 +31,23 @@ class ObjectDetectorNode(Node):
     ) -> None:
         super().__init__("object_detector")
 
-        self._bridge: cv_bridge.CvBridge = cv_bridge.CvBridge()
+        self.bridge: cv_bridge.CvBridge = cv_bridge.CvBridge()
 
         try:
-            self._interpreter: Interpreter = Interpreter(model_path=model_path)
+            self.interpreter: Interpreter = Interpreter(model_path=model_path)
         except ValueError as e:
             self.get_logger().error(f"Could not load tflite model: '{model_path}'.")
             raise
 
-        input_details = self._interpreter.get_input_details()
-        self._input_shape: tuple[int, int] = tuple(
+        input_details = self.interpreter.get_input_details()
+        self.input_shape: tuple[int, int] = tuple(
             input_details[0]["shape"][1:3].tolist()
         )
-        self._interpreter.allocate_tensors()
+        self.interpreter.allocate_tensors()
 
         self.read_labels(labels_file)
         self.build_color_dict()
-        self._scales: bool = False
+        self.scales: bool = False
 
         self.declare_parameter(
             "~confidence",
@@ -57,14 +57,14 @@ class ObjectDetectorNode(Node):
                 integer_range=[IntegerRange(from_value=0, to_value=100, step=1)],
             ),
         )
-        self._confidence_threshold: int = self.get_parameter("~confidence").value
+        self.confidence_threshold: int = self.get_parameter("~confidence").value
         self.add_on_set_parameters_callback(self.param_callback)
 
-        self._detection_pub: Publisher = self.create_publisher(
+        self.detection_pub: Publisher = self.create_publisher(
             CompressedImage, "detections/compressed", QoSProfile(depth=1)
         )
 
-        self._video_sub: Subscription = self.create_subscription(
+        self.video_sub: Subscription = self.create_subscription(
             Image, video_topic, self.video_callback, QoSProfile(depth=1)
         )
 
@@ -81,7 +81,7 @@ class ObjectDetectorNode(Node):
         """
         for param in params:
             if param.name == "~confidence" and param.type_ == param.Type.INTEGER:
-                self._confidence_threshold = param.value
+                self.confidence_threshold = param.value
                 self.get_logger().info(
                     f"Updated detection confidence threshold to {param.value}."
                 )
@@ -94,13 +94,13 @@ class ObjectDetectorNode(Node):
         Args:
             img (NDArray): Image received from ros topic converted to opencv object.
         """
-        self._final_height: int = img.shape[0]
-        self._final_width: int = img.shape[1]
+        self.final_height: int = img.shape[0]
+        self.final_width: int = img.shape[1]
 
-        self._scale_x: float = self._final_width / self._input_shape[0]
-        self._scale_y: float = self._final_height / self._input_shape[1]
+        self.scale_x: float = self.final_width / self.input_shape[0]
+        self.scale_y: float = self.final_height / self.input_shape[1]
 
-        self._scales = True
+        self.scales = True
 
     def translate_point(self, point: tuple[int, int]) -> tuple[int, int]:
         """Translates point from NN image into ros topic image.
@@ -111,8 +111,8 @@ class ObjectDetectorNode(Node):
         Returns:
             tuple[int, int]: Point with translated coordinates.
         """
-        x_translated = point[0] * self._scale_x
-        y_translated = point[1] * self._scale_y
+        x_translated = point[0] * self.scale_x
+        y_translated = point[1] * self.scale_y
 
         return (int(x_translated), int(y_translated))
 
@@ -122,17 +122,17 @@ class ObjectDetectorNode(Node):
         Args:
             file_path (str): Absolute path to file with detection labels.
         """
-        self._labels: Sequence[str] = []
+        self.labels: Sequence[str] = []
         with open(file_path, "r") as f:
             lines = f.readlines()
             for line in lines:
-                self._labels.append(line.strip())
+                self.labels.append(line.strip())
 
     def build_color_dict(self) -> None:
         """Parses the label and color parameters to produce a dictionary mapping labels
         to their respective colors.
         """
-        self._label_colors: dict = dict()
+        self.label_colors: dict = dict()
         self.declare_parameter(
             "~config_path",
             str(
@@ -151,7 +151,7 @@ class ObjectDetectorNode(Node):
             config_data = yaml.safe_load(f)
 
         for label, color in config_data.get("labels", {}).items():
-            self._label_colors[label.replace("_", " ")] = color
+            self.label_colors[label.replace("_", " ")] = color
 
     def video_callback(self, data: Image) -> None:
         """Processes incoming video messages by applying preprocessing and object detection,
@@ -160,9 +160,9 @@ class ObjectDetectorNode(Node):
         Args:
             data (Image): Incoming video frame.
         """
-        cv_img = self._bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
+        cv_img = self.bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
         rgb_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
-        if not self._scales:
+        if not self.scales:
             self.get_scales(cv_img)
 
         processed_img = self.preprocess(rgb_img)
@@ -171,8 +171,8 @@ class ObjectDetectorNode(Node):
         final_img = self.draw_detections(rgb_img, final_boxes)
 
         try:
-            msg = self._bridge.cv2_to_compressed_imgmsg(final_img, "jpeg")
-            self._detection_pub.publish(msg)
+            msg = self.bridge.cv2_to_compressed_imgmsg(final_img, "jpeg")
+            self.detection_pub.publish(msg)
         except cv_bridge.CvBridgeError() as e:
             self.get_logger().error(e)
 
@@ -186,7 +186,7 @@ class ObjectDetectorNode(Node):
             NDArray: Preprocessed opencv image ready for NN input.
         """
         cpy = copy.deepcopy(img)
-        resized: NDArray = cv2.resize(cpy, self._input_shape)
+        resized: NDArray = cv2.resize(cpy, self.input_shape)
 
         return resized
 
@@ -201,19 +201,19 @@ class ObjectDetectorNode(Node):
                 A tuple containing respectively bounding box coordinates (ranging from 0.0 to 1.0),
                 class IDs of the detected objects and confidence scores for each detection.
         """
-        input_details = self._interpreter.get_input_details()
-        output_details = self._interpreter.get_output_details()
-        self._interpreter.allocate_tensors()
+        input_details = self.interpreter.get_input_details()
+        output_details = self.interpreter.get_output_details()
+        self.interpreter.allocate_tensors()
 
         # providing input
-        self._interpreter.set_tensor(input_details[0]["index"], [img])
+        self.interpreter.set_tensor(input_details[0]["index"], [img])
         # running interferance
-        self._interpreter.invoke()
+        self.interpreter.invoke()
 
         # getting answer
-        boxes = self._interpreter.get_tensor(output_details[0]["index"])[0]
-        labels = self._interpreter.get_tensor(output_details[1]["index"])[0]
-        confidence = self._interpreter.get_tensor(output_details[2]["index"])[0]
+        boxes = self.interpreter.get_tensor(output_details[0]["index"])[0]
+        labels = self.interpreter.get_tensor(output_details[1]["index"])[0]
+        confidence = self.interpreter.get_tensor(output_details[2]["index"])[0]
 
         return boxes, labels, confidence
 
@@ -239,15 +239,15 @@ class ObjectDetectorNode(Node):
         """
         final_boxes = []
         for box, label, conf in zip(boxes, labels, confidence):
-            if int(conf * 100) > self._confidence_threshold:
-                top = int(box[0] * self._input_shape[1])
-                left = int(box[1] * self._input_shape[0])
-                bottom = int(box[2] * self._input_shape[1])
-                right = int(box[3] * self._input_shape[0])
+            if int(conf * 100) > self.confidence_threshold:
+                top = int(box[0] * self.input_shape[1])
+                left = int(box[1] * self.input_shape[0])
+                bottom = int(box[2] * self.input_shape[1])
+                right = int(box[3] * self.input_shape[0])
 
-                color = self._label_colors.get(self._labels[int(label)], (0, 0, 102))
+                color = self.label_colors.get(self.labels[int(label)], (0, 0, 102))
 
-                text = self._labels[int(label)] + " " + str(round(conf * 100, 2)) + "%"
+                text = self.labels[int(label)] + " " + str(round(conf * 100, 2)) + "%"
 
                 final_start_point = self.translate_point((left, top))
                 final_end_point = self.translate_point((right, bottom))
@@ -296,5 +296,5 @@ class ObjectDetectorNode(Node):
 
     def cleanup(self) -> None:
         """Cleans ROS entities."""
-        self.destroy_subscription(self._video_sub)
-        self.destroy_publisher(self._detection_pub)
+        self.destroy_subscription(self.video_sub)
+        self.destroy_publisher(self.detection_pub)
