@@ -25,32 +25,32 @@ class LineFollowerNode(Node):
 
     def __init__(self, model_path=None, velocity_topic=None, video_topic=None) -> None:
         super().__init__("line_follower")
-        self._param_listener = follower_parameters.ParamListener(self)
-        self._params = self._param_listener.get_params()
-        self._param_listener.set_user_callback(self.reconfigure_callback)
+        self.param_listener = follower_parameters.ParamListener(self)
+        self.params = self.param_listener.get_params()
+        self.param_listener.set_user_callback(self.reconfigure_callback)
 
-        self._bridge = cv_bridge.CvBridge()
+        self.bridge = cv_bridge.CvBridge()
 
         try:
-            self._interpreter = Interpreter(model_path=model_path)
-            self._interpreter.allocate_tensors()
+            self.interpreter = Interpreter(model_path=model_path)
+            self.interpreter.allocate_tensors()
         except ValueError as e:
             self.get_logger().error(f"Couldnt load tflite model: {model_path}")
             return
 
-        self._mask_func = simple_mask
+        self.mask_func = simple_mask
 
-        self._vel_pub: Publisher = self.create_publisher(
+        self.vel_pub: Publisher = self.create_publisher(
             Twist, velocity_topic, 1
         )
 
-        self._mask_pub: Optional[Publisher] = None
-        if self._params.publish_mask:
-            self._mask_pub = self.create_publisher(
+        self.mask_pub: Optional[Publisher] = None
+        if self.params.publish_mask:
+            self.mask_pub = self.create_publisher(
                 Image, "color_mask", 1
             )
 
-        self._video_sub: Subscription = self.create_subscription(
+        self.video_sub: Subscription = self.create_subscription(
             CompressedImage, video_topic, self.video_callback, 1
         )
 
@@ -62,21 +62,21 @@ class LineFollowerNode(Node):
         Args:
             parameters (follower_parameters.Params): The struct with current parameters.
         """
-        self._mask_function = (
+        self.mask_function = (
             simple_mask
             if parameters.hue_min < parameters.hue_max
             else double_range_mask
         )
 
-        if not self._mask_pub and parameters.publish_mask:
-            self._mask_pub = self.create_publisher(
+        if not self.mask_pub and parameters.publish_mask:
+            self.mask_pub = self.create_publisher(
                 Image, "color_mask", 1
             )
-        elif self._mask_pub and not parameters.publish_mask:
-            self.destroy_publisher(self._mask_pub)
-            self._mask_pub = None
+        elif self.mask_pub and not parameters.publish_mask:
+            self.destroy_publisher(self.mask_pub)
+            self.mask_pub = None
 
-        self._params = parameters
+        self.params = parameters
 
     def video_callback(self, data: CompressedImage) -> None:
         """Processes incoming video frames.
@@ -86,17 +86,17 @@ class LineFollowerNode(Node):
         Args:
             data (CompressedImage): Incoming video frame.
         """
-        cv_img = self._bridge.compressed_imgmsg_to_cv2(data, desired_encoding="bgr8")
+        cv_img = self.bridge.compressed_imgmsg_to_cv2(data, desired_encoding="bgr8")
         processed_img = self.preprocess_img(cv_img)
 
         steering = self.get_steering(processed_img)
 
-        if self._params.publish_mask:
+        if self.params.publish_mask:
             self.publish_mask(processed_img)
 
         self.get_logger().debug(f"steering: {steering[0]}, {steering[1]}")
 
-        if self._params.follow_enabled:
+        if self.params.follow_enabled:
             self.publish_vel(steering)
 
     def publish_vel(self, steering: tuple[float, float]) -> None:
@@ -108,7 +108,7 @@ class LineFollowerNode(Node):
         vel_msg = Twist()
         vel_msg.linear.x = float(steering[0])
         vel_msg.angular.z = float(steering[1])
-        self._vel_pub.publish(vel_msg)
+        self.vel_pub.publish(vel_msg)
 
     def publish_mask(self, mask: NDArray) -> None:
         """Prepares color mask (NN model input) and publishes it.
@@ -117,8 +117,8 @@ class LineFollowerNode(Node):
             mask (NDArray): Color mask parsed as NN model input.
         """
         mask *= 255.0
-        img_msg = self._bridge.cv2_to_imgmsg(mask, encoding="32FC1")
-        self._mask_pub.publish(img_msg)
+        img_msg = self.bridge.cv2_to_imgmsg(mask, encoding="32FC1")
+        self.mask_pub.publish(img_msg)
 
     def get_steering(self, img: NDArray) -> tuple[float, float]:
         """Runs NN model interference - obtains robots velocity
@@ -130,18 +130,18 @@ class LineFollowerNode(Node):
         Returns:
             tuple[float, float]: NN model output - linear and angular velocity commands.
         """
-        input_details = self._interpreter.get_input_details()
-        output_details = self._interpreter.get_output_details()
-        self._interpreter.allocate_tensors()
+        input_details = self.interpreter.get_input_details()
+        output_details = self.interpreter.get_output_details()
+        self.interpreter.allocate_tensors()
 
         # providing input
-        self._interpreter.set_tensor(input_details[0]["index"], [img])
+        self.interpreter.set_tensor(input_details[0]["index"], [img])
         # running interferance
-        self._interpreter.invoke()
+        self.interpreter.invoke()
 
         # getting answer
-        linear_x = self._interpreter.get_tensor(output_details[0]["index"])[0][0]
-        angular_z = self._interpreter.get_tensor(output_details[1]["index"])[0][0]
+        linear_x = self.interpreter.get_tensor(output_details[0]["index"])[0][0]
+        angular_z = self.interpreter.get_tensor(output_details[1]["index"])[0][0]
         self.get_logger().debug(f"prediction = ({linear_x}, {angular_z})")
 
         return linear_x, angular_z
@@ -160,7 +160,7 @@ class LineFollowerNode(Node):
         # cropping img
         crop_img = hsv_img[200 : hsv_img.shape[0], :]
         # getting color mask
-        color_mask = self._mask_func(crop_img, self._params)
+        color_mask = self.mask_func(crop_img, self.params)
         # converting int balues to float
         float_img = color_mask.astype(np.float32)
         # resizing
@@ -172,9 +172,9 @@ class LineFollowerNode(Node):
 
     def cleanup(self) -> None:
         """Cleans ROS entities."""
-        self.destroy_subscription(self._video_sub)
+        self.destroy_subscription(self.video_sub)
 
-        self.destroy_publisher(self._vel_pub)
+        self.destroy_publisher(self.vel_pub)
 
-        if self._mask_pub:
-            self.destroy_publisher(self._mask_pub)
+        if self.mask_pub:
+            self.destroy_publisher(self.mask_pub)

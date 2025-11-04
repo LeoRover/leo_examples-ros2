@@ -21,23 +21,23 @@ class ColorMaskNode(Node):
 
     def __init__(self):
         super().__init__("color_mask_finder")
-        self._param_listener = follower_parameters.ParamListener(self)
-        self._params = self._param_listener.get_params()
-        self._param_listener.set_user_callback(self.reconfigure_callback)
+        self.param_listener = follower_parameters.ParamListener(self)
+        self.params = self.param_listener.get_params()
+        self.param_listener.set_user_callback(self.reconfigure_callback)
 
-        self._bridge = cv_bridge.CvBridge()
+        self.bridge = cv_bridge.CvBridge()
 
-        self._mask_function = simple_mask
+        self.mask_function = simple_mask
 
-        self._mask_pub: Publisher = self.create_publisher(
+        self.mask_pub: Publisher = self.create_publisher(
             Image, "color_mask", 1
         )
 
-        self._colors_caught_pub: Publisher = self.create_publisher(
+        self.colors_caught_pub: Publisher = self.create_publisher(
             CompressedImage, "colors_caught/compressed", 1
         )
 
-        self._video_sub: Subscription = self.create_subscription(
+        self.video_sub: Subscription = self.create_subscription(
             CompressedImage,
             "camera/image_color/compressed",
             self.video_callback,
@@ -53,13 +53,13 @@ class ColorMaskNode(Node):
         Args:
             parameters (follower_parameters.Params): The struct with current parameters.
         """
-        self._mask_function = (
+        self.mask_function = (
             simple_mask
             if parameters.hue_min < parameters.hue_max
             else double_range_mask
         )
 
-        self._params = parameters
+        self.params = parameters
 
     def video_callback(self, data: Image) -> None:
         """Callback for the camera image topic.
@@ -68,7 +68,7 @@ class ColorMaskNode(Node):
         Args:
             data (Image): The received message.
         """
-        cv_img: NDArray = self._bridge.compressed_imgmsg_to_cv2(
+        cv_img: NDArray = self.bridge.compressed_imgmsg_to_cv2(
             data, desired_encoding="passthrough"
         )
         cv_img = cv_img[200 : cv_img.shape[0], :]
@@ -90,7 +90,7 @@ class ColorMaskNode(Node):
         """
         copy_img = copy.deepcopy(img)
         hsv_img = cv2.cvtColor(copy_img, cv2.COLOR_BGR2HSV)
-        mask = self._mask_function(hsv_img, self._params)
+        mask = self.mask_function(hsv_img, self.params)
 
         return mask
 
@@ -101,25 +101,25 @@ class ColorMaskNode(Node):
             mask (NDArray): Grayscale image representing the detected color mask.
             colors (NDArray): Image showing regions matching the color mask.
         """
-        mask_to_ros = self._bridge.cv2_to_imgmsg(mask, encoding="8UC1")
-        colors_to_ros = self._bridge.cv2_to_compressed_imgmsg(colors)
+        mask_to_ros = self.bridge.cv2_to_imgmsg(mask, encoding="8UC1")
+        colors_to_ros = self.bridge.cv2_to_compressed_imgmsg(colors)
 
-        self._mask_pub.publish(mask_to_ros)
-        self._colors_caught_pub.publish(colors_to_ros)
+        self.mask_pub.publish(mask_to_ros)
+        self.colors_caught_pub.publish(colors_to_ros)
 
     def print_vals(self) -> None:
         """Displays current HSV bounds of the color mask on the terminal."""
         print("Your chosen hsv bounds - copy them to correct yaml file", flush=True)
-        print(f"hue_min: {self._params.hue_min}", flush=True)
-        print(f"hue_max: {self._params.hue_max}", flush=True)
-        print(f"sat_min: {self._params.sat_min}", flush=True)
-        print(f"sat_max: {self._params.sat_max}", flush=True)
-        print(f"val_min: {self._params.val_min}", flush=True)
-        print(f"val_max: {self._params.val_max}", flush=True)
+        print(f"hue_min: {self.params.hue_min}", flush=True)
+        print(f"hue_max: {self.params.hue_max}", flush=True)
+        print(f"sat_min: {self.params.sat_min}", flush=True)
+        print(f"sat_max: {self.params.sat_max}", flush=True)
+        print(f"val_min: {self.params.val_min}", flush=True)
+        print(f"val_max: {self.params.val_max}", flush=True)
 
     def cleanup(self) -> None:
         """Cleans ROS entities."""
-        self.destroy_subscription(self._video_sub)
-        self.destroy_publisher(self._colors_caught_pub)
-        self.destroy_publisher(self._mask_pub)
+        self.destroy_subscription(self.video_sub)
+        self.destroy_publisher(self.colors_caught_pub)
+        self.destroy_publisher(self.mask_pub)
         self.print_vals()

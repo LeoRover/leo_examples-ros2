@@ -13,12 +13,12 @@ class DataProcessor:
     """Class processing provided recorded data into dataset."""
 
     def __init__(self, train: str, valid: str, zip_file: str) -> None:
-        self._training_paths = train
-        self._validation_paths = valid
-        self._zip_file = zip_file
+        self.training_paths = train
+        self.validation_paths = valid
+        self.zip_file = zip_file
 
         if not zip_file.endswith(".zip"):
-            self._zip_file += ".zip"
+            self.zip_file += ".zip"
 
         try:
             Path("data").mkdir(parents=True)
@@ -28,7 +28,7 @@ class DataProcessor:
             )
             return
 
-        self.process_data(self._training_paths + self._validation_paths)
+        self.process_data(self.training_paths + self.validation_paths)
         self.make_zip_archive()
 
     def make_zip_archive(self) -> None:
@@ -37,7 +37,7 @@ class DataProcessor:
         """
         zip_obj = None
         try:
-            zip_obj = ZipFile(self._zip_file, "x")
+            zip_obj = ZipFile(self.zip_file, "x")
         except FileExistsError as e:
             print(
                 "Given zip file already exist. Pick different name, or move the zip file."
@@ -47,7 +47,7 @@ class DataProcessor:
             os.remove("labels.pickle")
             return
 
-        print(f"Created '{self._zip_file}' file.")
+        print(f"Created '{self.zip_file}' file.")
 
         zip_obj.write("partition.pickle")
         print("Zipped 'partition.pickle' file.")
@@ -87,7 +87,7 @@ class DataProcessor:
                     labels["linear"][photo] = label_tuple[0]
                     labels["angular"][photo] = label_tuple[1]
 
-                    if path in self._validation_paths:
+                    if path in self.validation_paths:
                         partition["validation"].append(photo)
                     else:
                         partition["train"].append(photo)
