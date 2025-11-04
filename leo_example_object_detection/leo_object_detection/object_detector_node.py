@@ -8,7 +8,6 @@ from rclpy.node import Node
 from rclpy.publisher import Publisher
 from rclpy.parameter import Parameter
 from rclpy.subscription import Subscription
-from rclpy.qos import QoSProfile
 
 from rcl_interfaces.msg import ParameterDescriptor, IntegerRange, SetParametersResult
 from sensor_msgs.msg import Image, CompressedImage
@@ -61,11 +60,11 @@ class ObjectDetectorNode(Node):
         self.add_on_set_parameters_callback(self.param_callback)
 
         self.detection_pub: Publisher = self.create_publisher(
-            CompressedImage, "detections/compressed", QoSProfile(depth=1)
+            CompressedImage, "detections/compressed", 1
         )
 
         self.video_sub: Subscription = self.create_subscription(
-            Image, video_topic, self.video_callback, QoSProfile(depth=1)
+            Image, video_topic, self.video_callback, 1
         )
 
         self.get_logger().info("Starting node.")
