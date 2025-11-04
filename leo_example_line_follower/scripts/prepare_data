@@ -24,7 +24,7 @@ class DataProcessor:
             Path("data").mkdir(parents=True)
         except FileExistsError as e:
             print(
-                "'data' directory exist in the working directory already. Can't process images."
+                "'data' directory exists in the working directory already. Can't process images."
             )
             return
 

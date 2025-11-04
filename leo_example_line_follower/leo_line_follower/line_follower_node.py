@@ -2,9 +2,7 @@ from typing import Optional
 
 from rclpy.node import Node
 from rclpy.publisher import Publisher
-from rclpy.qos import QoSProfile
 from rclpy.subscription import Subscription
-from rclpy.timer import Timer
 
 from sensor_msgs.msg import CompressedImage, Image
 from geometry_msgs.msg import Twist
@@ -43,17 +41,17 @@ class LineFollowerNode(Node):
         self._mask_func = simple_mask
 
         self._vel_pub: Publisher = self.create_publisher(
-            Twist, velocity_topic, QoSProfile(depth=1)
+            Twist, velocity_topic, 1
         )
 
         self._mask_pub: Optional[Publisher] = None
         if self._params.publish_mask:
             self._mask_pub = self.create_publisher(
-                Image, "color_mask", QoSProfile(depth=1)
+                Image, "color_mask", 1
             )
 
         self._video_sub: Subscription = self.create_subscription(
-            CompressedImage, video_topic, self.video_callback, QoSProfile(depth=1)
+            CompressedImage, video_topic, self.video_callback, 1
         )
 
     def reconfigure_callback(self, parameters: follower_parameters.Params) -> None:
@@ -72,7 +70,7 @@ class LineFollowerNode(Node):
 
         if not self._mask_pub and parameters.publish_mask:
             self._mask_pub = self.create_publisher(
-                Image, "color_mask", QoSProfile(depth=1)
+                Image, "color_mask", 1
             )
         elif self._mask_pub and not parameters.publish_mask:
             self.destroy_publisher(self._mask_pub)

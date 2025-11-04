@@ -2,9 +2,7 @@ import copy
 
 from rclpy.node import Node
 from rclpy.publisher import Publisher
-from rclpy.qos import QoSProfile
 from rclpy.subscription import Subscription
-from rclpy.timer import Timer
 
 from sensor_msgs.msg import CompressedImage, Image
 
@@ -32,18 +30,18 @@ class ColorMaskNode(Node):
         self._mask_function = simple_mask
 
         self._mask_pub: Publisher = self.create_publisher(
-            Image, "color_mask", QoSProfile(depth=1)
+            Image, "color_mask", 1
         )
 
         self._colors_caught_pub: Publisher = self.create_publisher(
-            CompressedImage, "colors_caught/compressed", QoSProfile(depth=1)
+            CompressedImage, "colors_caught/compressed", 1
         )
 
         self._video_sub: Subscription = self.create_subscription(
             CompressedImage,
             "camera/image_color/compressed",
             self.video_callback,
-            QoSProfile(depth=1),
+            1
         )
 
         self.get_logger().info("Starting color_mask_finder node")

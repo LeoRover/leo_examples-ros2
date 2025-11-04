@@ -5,7 +5,6 @@ import shutil
 import time
 
 from rclpy.node import Node
-from rclpy.qos import QoSProfile
 from rclpy.subscription import Subscription
 
 from geometry_msgs.msg import Twist
@@ -57,10 +56,10 @@ class DataSaverNode(Node):
         self._label_file = open(os.path.join(self._path, "labels.txt"), "a+")
 
         self._video_sub: Subscription = self.create_subscription(
-            CompressedImage, camera_topic, self.video_callback, QoSProfile(depth=1)
+            CompressedImage, camera_topic, self.video_callback, 1
         )
         self._vel_sub: Subscription = self.create_subscription(
-            Twist, vel_topic, self.velocity_callback, QoSProfile(depth=1)
+            Twist, vel_topic, self.velocity_callback, 1
         )
         self.running = True
 
