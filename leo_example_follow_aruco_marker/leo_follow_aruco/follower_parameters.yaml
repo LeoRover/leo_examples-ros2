@@ -1,0 +1,89 @@
+follower_parameters:
+  follow_id:
+    type: int
+    default_value: 0
+    description: "The ID of the marker to follow."
+    validation:
+      gt_eq<>: [0]
+  marker_timeout:
+    type: double
+    default_value: 1.0
+    description: "Timeout for the marker detection (in seconds). When the specified time elapses with no detection the robot stops."
+    validation:
+      bounds<>: [0.1, 5.0]
+  min_ang_vel:
+    type: double
+    default_value: 0.1
+    description: "Minimal angular velocity (in radians per second) the rover is going to rotate with."
+    validation:
+      bounds<>: [0.1, 1.0]
+  max_ang_vel:
+    type: double
+    default_value: 1.0
+    description: "Maximal angular velocity (in radians per second) the rover is going to rotate with."
+    validation:
+      bounds<>: [1.0, 3.0]
+  angle_min:
+    type: double
+    default_value: 0.1
+    description: "Minimal angle (in radians) to the marker, for the rover to start rotating."
+    validation:
+      bounds<>: [0.1, 1.0]
+  angle_max:
+    type: double
+    default_value: 0.7
+    description: "Angle (in radians) to the marker at which rover will rotate with max speed."
+    validation:
+      bounds<>: [0.1, 1.0]
+  min_lin_vel_forward:
+    type: double
+    default_value: 0.1
+    description: "Minimal linear velocity (in meters per second) the rover is going to move with driving forward."
+    validation:
+      bounds<>: [0.1, 0.5]
+  max_lin_vel_forward:
+    type: double
+    default_value: 0.4
+    description: "Maximal linear velocity (in meters per second) the rover is going to move with driving forward."
+    validation:
+      bounds<>: [0.1, 0.5]
+  distance_min_forward:
+    type: double
+    default_value: 0.7
+    description: "Minimal distance (in meters) to the marker, for the rover to start moving forward."
+    validation:
+      bounds<>: [0.5, 1.0]
+  distance_max_forward:
+    type: double
+    default_value: 1.2
+    description: "Distance (in meters) to the marker, at which the rover will move forward with max speed."
+    validation:
+      bounds<>: [1.0, 2.0]
+  min_lin_vel_reverse:
+    type: double
+    default_value: 0.1
+    description: "Minimal linear velocity (in meters per second) the rover is going to move with driving backward."
+    validation:
+      bounds<>: [0.1, 0.5]
+  max_lin_vel_reverse:
+    type: double
+    default_value: 0.2
+    description: "Maximal linear velocity (in meters per second) the rover is going to move with driving backward."
+    validation:
+      bounds<>: [0.1, 0.5]
+  distance_min_reverse:
+    type: double
+    default_value: 0.4
+    description: "Distance (in meters) to the marker, at which the rover will move backward with max speed."
+    validation:
+      bounds<>: [0.1, 1.0]
+  distance_max_reverse:
+    type: double
+    default_value: 0.5
+    description: "Minimal distance (in meters) to the marker, for the rover to start moving backward."
+    validation:
+      bounds<>: [0.1, 2.0]
+  follow_enabled:
+    type: bool
+    default_value: true
+    description: "Whether to follow the marker or not."
