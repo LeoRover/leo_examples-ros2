@@ -49,14 +49,14 @@ class ObjectDetectorNode(Node):
         self.scales: bool = False
 
         self.declare_parameter(
-            "~confidence",
+            "confidence",
             65,
             ParameterDescriptor(
                 description="Detection confidence threshold percentage (int, range 0-100).",
                 integer_range=[IntegerRange(from_value=0, to_value=100, step=1)],
             ),
         )
-        self.confidence_threshold: int = self.get_parameter("~confidence").value
+        self.confidence_threshold: int = self.get_parameter("confidence").value
         self.add_on_set_parameters_callback(self.param_callback)
 
         self.detection_pub: Publisher = self.create_publisher(
@@ -79,7 +79,7 @@ class ObjectDetectorNode(Node):
             SetParametersResult: Result of parameter change action.
         """
         for param in params:
-            if param.name == "~confidence" and param.type_ == param.Type.INTEGER:
+            if param.name == "confidence" and param.type_ == param.Type.INTEGER:
                 self.confidence_threshold = param.value
                 self.get_logger().info(
                     f"Updated detection confidence threshold to {param.value}."
@@ -133,7 +133,7 @@ class ObjectDetectorNode(Node):
         """
         self.label_colors: dict = dict()
         self.declare_parameter(
-            "~config_path",
+            "config_path",
             str(
                 Path(get_package_share_directory("leo_example_object_detection"))
                 / "config"
@@ -144,7 +144,7 @@ class ObjectDetectorNode(Node):
             ),
         )
 
-        config_path = self.get_parameter("~config_path").value
+        config_path = self.get_parameter("config_path").value
 
         with open(config_path, "r", encoding="utf-8") as f:
             config_data = yaml.safe_load(f)
