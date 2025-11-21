@@ -1,0 +1,5 @@
+labels:    
+  person: [255, 0, 0]
+  chair: [0, 0, 255]
+  backpack: [0, 255, 0]
+  cell_phone: [153, 0, 153]

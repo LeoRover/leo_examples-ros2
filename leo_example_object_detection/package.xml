@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>leo_example_object_detection</name>
+  <version>1.0.0</version>
+  <description>
+    Object Detection Example for Leo Rover.
+  </description>
+
+  <maintainer email="support@fictionlab.pl">Fictionlab</maintainer>
+
+  <license>MIT</license>
+
+  <url type="bugtracker">https://github.com/LeoRover/leo_examples-ros2/issues</url>
+  <url type="repository">https://github.com/LeoRover/leo_examples-ros2</url>
+  
+  <author email="aleks@fictionlab.pl">Aleksander Szymański</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>rcl_interfaces</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  
+  <export>
+   <build_type>ament_cmake</build_type>
+  </export>
+
+</package>
