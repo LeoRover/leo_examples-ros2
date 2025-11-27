@@ -29,19 +29,14 @@ class ColorMaskNode(Node):
 
         self.mask_function = simple_mask
 
-        self.mask_pub: Publisher = self.create_publisher(
-            Image, "color_mask", 1
-        )
+        self.mask_pub: Publisher = self.create_publisher(Image, "color_mask", 1)
 
         self.colors_caught_pub: Publisher = self.create_publisher(
             CompressedImage, "colors_caught/compressed", 1
         )
 
         self.video_sub: Subscription = self.create_subscription(
-            CompressedImage,
-            "camera/image_color/compressed",
-            self.video_callback,
-            1
+            CompressedImage, "camera/image_color/compressed", self.video_callback, 1
         )
 
         self.get_logger().info("Starting color_mask_finder node")
@@ -109,13 +104,13 @@ class ColorMaskNode(Node):
 
     def print_vals(self) -> None:
         """Displays current HSV bounds of the color mask on the terminal."""
-        print("Your chosen hsv bounds - copy them to correct yaml file", flush=True)
-        print(f"hue_min: {self.params.hue_min}", flush=True)
-        print(f"hue_max: {self.params.hue_max}", flush=True)
-        print(f"sat_min: {self.params.sat_min}", flush=True)
-        print(f"sat_max: {self.params.sat_max}", flush=True)
-        print(f"val_min: {self.params.val_min}", flush=True)
-        print(f"val_max: {self.params.val_max}", flush=True)
+        print("Your chosen hsv bounds - copy them to correct yaml file")
+        print(f"hue_min: {self.params.hue_min}")
+        print(f"hue_max: {self.params.hue_max}")
+        print(f"sat_min: {self.params.sat_min}")
+        print(f"sat_max: {self.params.sat_max}")
+        print(f"val_min: {self.params.val_min}")
+        print(f"val_max: {self.params.val_max}")
 
     def cleanup(self) -> None:
         """Cleans ROS entities."""
