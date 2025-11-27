@@ -37,7 +37,7 @@ follower_parameters:
       bounds<>: [0, 255]
   follow_enabled:
     type: bool
-    default_value: true
+    default_value: false
     description: "Whether to follow the track or not."
   publish_mask:
     type: bool
