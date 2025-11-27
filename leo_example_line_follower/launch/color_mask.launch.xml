@@ -1,8 +1,0 @@
-<launch version="0.1.1">
-    <arg name="color_mask_file" default="$(find-pkg-share leo_example_line_follower)/config/blue.yaml" description="Path to yaml file, with starting values for color mask."/>
-
-    <node pkg="leo_example_line_follower" exec="color_mask" output="screen">
-        <param from="$(var color_mask_file)" />
-    </node>
-
-</launch>
