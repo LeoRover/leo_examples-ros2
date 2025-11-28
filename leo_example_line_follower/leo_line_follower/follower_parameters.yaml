@@ -1,0 +1,45 @@
+follower_parameters:
+  hue_min:
+    type: int
+    default_value: 0
+    description: "Minimum hue value for color_mask."
+    validation:
+      bounds<>: [0, 179]
+  hue_max:
+    type: int
+    default_value: 179
+    description: "Maximum hue value for color_mask."
+    validation:
+      bounds<>: [0, 179]
+  sat_min:
+    type: int
+    default_value: 0
+    description: "Minimum saturation value for color_mask."
+    validation:
+      bounds<>: [0, 255]
+  sat_max:
+    type: int
+    default_value: 255
+    description: "Maximum saturation value for color_mask."
+    validation:
+      bounds<>: [0, 255]
+  val_min:
+    type: int
+    default_value: 0
+    description: "Minimum val (V from HSV) value for color_mask."
+    validation:
+      bounds<>: [0, 255]
+  val_max:
+    type: int
+    default_value: 255
+    description: "Maximum val (V from HSV) value for color_mask."
+    validation:
+      bounds<>: [0, 255]
+  follow_enabled:
+    type: bool
+    default_value: false
+    description: "Whether to follow the track or not."
+  publish_mask:
+    type: bool
+    default_value: false
+    description: "Whether to publish the currently mask."

@@ -1,0 +1,16 @@
+<launch version="0.1.1"> 
+    <arg name="color_mask_file" default="$(find-pkg-share leo_example_line_follower)/config/blue.yaml" description="Path to yaml file with color mask values."/>
+    <arg name="pub_mask" default="false" description="Flag specifying whether or not to publish the color mask."/>
+    <arg name="follow" default="false" description="Flag specifying whether or not the robot should follow the track."/>
+
+    <arg name="camera_topic" default="camera/image_color/compressed" description="Name of topic with CompressedImage messages."/>
+    <arg name="velocity_topic" default="cmd_vel" description="Name of topic to which node will publish Twist messages."/>
+    <arg name="model" default="$(find-pkg-share leo_example_line_follower)/models/color_mask_model.tflite" description="Path to neural network model."/>
+
+    <node pkg="leo_example_line_follower" exec="line_follower" output="screen" args="-p $(var model) -c $(var camera_topic) -v $(var velocity_topic)">
+        <param from="$(var color_mask_file)" />
+        <param name="publish_mask" value="$(var pub_mask)" />
+        <param name="follow_enabled" value="$(var follow)" />
+    </node>
+
+</launch>

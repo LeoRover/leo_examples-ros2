@@ -1,0 +1,9 @@
+<launch version="0.1.1">
+    <arg name="duration" default="20.0" description="How long will the data be recorded."/>
+    <arg name="output_dir" default="data" description="Name of the directory for recorded data."/>
+    <arg name="camera_topic" default="camera/image_color/compressed" description="Name of the topic with CompressedImage messages."/>
+    <arg name="velocity_topic" default="cmd_vel" description="Name of the topic with Twist messages."/>
+
+    <node pkg="leo_example_line_follower" exec="data_saver" output="screen" args="$(var duration) -c $(var camera_topic) -v $(var velocity_topic) -o $(var output_dir)" />
+
+</launch>
