@@ -18,7 +18,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>leo_example_follow_ar_tag</exec_depend>
+  <exec_depend>leo_example_follow_aruco_marker</exec_depend>
   <exec_depend>leo_example_line_follower</exec_depend>
   <exec_depend>leo_example_object_detection</exec_depend>
 
