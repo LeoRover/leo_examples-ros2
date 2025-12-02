@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  industrial_ci:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        ROS_DISTRO: [jazzy, kilted, rolling]
+        ROS_REPO: [testing, main]
+    env:
+      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+      ROS_REPO: ${{ matrix.ROS_REPO }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Source tests
+        uses: "ros-industrial/industrial_ci@master"
