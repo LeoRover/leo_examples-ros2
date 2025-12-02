@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>leo_examples</name>
+  <version>0.0.0</version>
+  <description>
+    A collection of ROS2 packages that show an example usage of functionalities on a stock Leo Rover.
+  </description>
+
+  <maintainer email="support@fictionlab.pl">Fictionlab</maintainer>
+
+  <license>MIT</license>
+
+  <url type="bugtracker">https://github.com/LeoRover/leo_examples-ros2/issues</url>
+  <url type="repository">https://github.com/LeoRover/leo_examples-ros2</url>
+
+  <author email="aleks@fictionlab.pl">Aleksander Szymański</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>leo_example_follow_aruco_marker</exec_depend>
+  <exec_depend>leo_example_line_follower</exec_depend>
+  <exec_depend>leo_example_object_detection</exec_depend>
+
+  <exec_depend>leo</exec_depend>  
+
+  <export>
+    <build_type>ament_cmake</build_type>
+    <architecture_independent/>
+  </export>
+</package>
