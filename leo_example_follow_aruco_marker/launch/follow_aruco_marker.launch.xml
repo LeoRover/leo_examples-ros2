@@ -1,5 +1,7 @@
 <launch version="0.1.1">
+  <arg name="params_file" default="$(find-pkg-share leo_example_follow_aruco_marker)/config/follower.yaml" />
+
   <node pkg="leo_example_follow_aruco_marker" exec="aruco_follower" output="screen">
-    <param from="$(find-pkg-share leo_example_follow_aruco_marker)/config/follower.yaml" />
+    <param from="$(var params_file)" />
   </node>
 </launch>
