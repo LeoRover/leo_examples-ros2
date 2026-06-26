@@ -1,5 +1,10 @@
 <launch version="0.1.1">
   <arg name="params_file" default="$(find-pkg-share leo_example_follow_aruco_marker)/config/follower.yaml" />
+  <arg name="start_aruco_tracker" default="false" />
+
+  <node if="$(var start_aruco_tracker)" pkg="aruco_opencv" exec="aruco_tracker_autostart">
+    <param from="$(find-pkg-share leo_example_follow_aruco_marker)/config/tracker.yaml" />
+  </node>
 
   <node pkg="leo_example_follow_aruco_marker" exec="aruco_follower" output="screen">
     <param from="$(var params_file)" />
