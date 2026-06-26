@@ -180,7 +180,7 @@ class ArucoMarkerFollower(Node):
                     "Reveived odometry has timestamp older than last marker position."
                 )
 
-            self.odom_current_pose = msg.pose
+            self.odom_current_pose = msg.pose.pose
 
             self.update_marker_angle_and_distance()
 
