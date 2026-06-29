@@ -2,6 +2,12 @@
 Changelog for package leo_example_follow_aruco_marker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* feat: Update follow aruco (`#8 <https://github.com/LeoRover/leo_examples-ros2/issues/8>`_)
+* fix: AttributeError in aruco_follower when reading odometry pose (`#6 <https://github.com/LeoRover/leo_examples-ros2/issues/6>`_)
+* Contributors: Filip Szkudlarek, Juan Carlos Tique
+
 1.0.0 (2025-12-02)
 ------------------
 * chore: Add ci workflow (`#5 <https://github.com/LeoRover/leo_examples-ros2/issues/5>`_)
